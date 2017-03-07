@@ -17,5 +17,10 @@ will delete the previous day records (24hours of data)
 
 
 
+*********************Production Env Command**********************
+
+java -jar {jarname} --spring.profiles.active=prod
+
+
 
 

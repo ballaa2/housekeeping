@@ -47,10 +47,7 @@ public class HouseKeepingService
 		
 		DateUtil.isThisTimeValid(startTime);
 
-//		log.info("cmd line thresholdlimit" + cmdLineThresholdLimit);
-//		if(cmdLineThresholdLimit>0){
-//			thresholdRowsLimit = cmdLineThresholdLimit;
-//		}
+
 		log.info("****Thresholdlimit*****" + thresholdRowsLimit);
 
 		List<String> timeslots = new ArrayList<String>();
@@ -71,7 +68,7 @@ public class HouseKeepingService
 				 startCalObj = DateUtil.convertStringToDate(startDate);
 				 endCalObj.setTime(startCalObj.getTime());
 				 endCalObj.set(Calendar.HOUR,0);
-				 endCalObj.set(Calendar.MINUTE, 60);
+				 endCalObj.set(Calendar.MINUTE, timeSpanInMin.intValue());
 				 endCalObj.set(Calendar.SECOND, 0);		
 			
 				jobEndCalObj.setTime(startCalObj.getTime());

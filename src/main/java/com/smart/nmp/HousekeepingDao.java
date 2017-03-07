@@ -36,7 +36,7 @@ public class HousekeepingDao {
 			 return rowcount;
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			log.error("Exception:"+e);
 			e.printStackTrace();
 		}
 		return rowcount;
@@ -53,7 +53,7 @@ public class HousekeepingDao {
 			deletedRecords = ps.executeUpdate();
 
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			log.error("Exception:"+e);
 			e.printStackTrace();
 		}
 		return deletedRecords;
