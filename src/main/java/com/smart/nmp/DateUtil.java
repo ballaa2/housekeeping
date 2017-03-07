@@ -81,7 +81,6 @@ public class DateUtil {
 
 		try {
 			Date date = sdf.parse(timeToValidate);
-			System.out.println(date);
 
 		} catch (ParseException e) {
 			e.printStackTrace();
@@ -103,8 +102,6 @@ public class DateUtil {
 
 		try {
 			Date date = sdf.parse(dateToValidate);
-			System.out.println(date);
-
 		} catch (ParseException e) {
 			e.printStackTrace();
 			throw new Exception("Invalid Time Format , Please make sure that you give Time Format as yyyy-MM-dd");
