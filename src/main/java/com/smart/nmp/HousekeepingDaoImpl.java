@@ -1,6 +1,5 @@
 package com.smart.nmp;
 
-import org.apache.tomcat.jdbc.pool.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +13,7 @@ public class HousekeepingDaoImpl implements HousekeepingDao {
 	 
 	 @Autowired
 	 JdbcTemplate jdbcTemplate;
-	 @Autowired
-	 DataSource dataSource;
-	 
+	
 	 @Override
 	 public  int getCount(String tablename ,String startDateTime, String endDateTime) {		
 		String sql = "SELECT count(*) FROM "+tablename+"  WHERE EXPIRYDATE between '"+startDateTime+"' AND '"+endDateTime+"'";
