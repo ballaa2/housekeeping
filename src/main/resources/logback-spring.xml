@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<!--Appender to write to file -->
+	<springProperty scope="context" name="logPattern" source="log.Pattern"/>
+	<appender name="FileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<!-- Name of the file where the log messages are written -->
+		<file>${logPattern}.log</file>
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n </pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${logPattern}.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+	</appender>
+	<appender name="async" class="ch.qos.logback.classic.AsyncAppender">
+		<param name="BufferSize" value="500" />
+		<appender-ref ref="FileAppender" />
+	</appender>
+	<logger name="org.springframework.core">
+		<level value="error" />
+	</logger>
+
+	<logger name="org.springframework.beans">
+		<level value="error" />
+	</logger>
+
+	<logger name="org.springframework.context">
+		<level value="error" />
+	</logger>
+
+	<logger name="org.springframework.web">
+		<level value="error" />
+	</logger>
+
+	<!-- Setting the root level of logging to INFO -->
+	<root level="info">
+		<appender-ref ref="FileAppender" />
+	</root>
+</configuration>
