@@ -13,7 +13,7 @@ where expiry date between '2017-03-01 00:00:00' and '2017-03-02 00:00:00'
 
 2.command : java -jar houskeeping.jar 
 
-will delete the previous day records (24hours of data)
+delete all the expired records 
 
 
 

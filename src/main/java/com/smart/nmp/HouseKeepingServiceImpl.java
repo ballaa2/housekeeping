@@ -21,10 +21,6 @@ public class HouseKeepingServiceImpl implements HouseKeepingService{
 
 	private static final Logger log = LoggerFactory.getLogger(HouseKeepingServiceImpl.class);
 
-	
-	@Value("${startTime}")
-	private String startTime;
-
 	@Value("${thresholdRowsLimit}")
 	private int thresholdRowsLimit;
 
@@ -38,12 +34,10 @@ public class HouseKeepingServiceImpl implements HouseKeepingService{
 	HousekeepingDao houseKeepingDao;
 
 	@Override
-	public void deleteExpriedSubscriptionTablesData(String startDate)
+	public void deleteExpriedSubscriptionTablesData(String dateToDelRecords)
 			throws Exception {
 		SimpleDateFormat sdf 		= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		BigDecimal timeSpanInMin 	= new BigDecimal(timespan).divide(new BigDecimal(60));
-
-		DateUtil.isThisTimeValid(startTime);
 
 		log.info("Thresholdlimit	:	" + thresholdRowsLimit);
 		log.info("timeSpanInMin		:	" + timeSpanInMin);
@@ -51,52 +45,61 @@ public class HouseKeepingServiceImpl implements HouseKeepingService{
 		List<String> timeslots = new ArrayList<String>();
 
 		String[] tables = tablenames.split(",");
-
+		String startDate = "";
 		for (String tableName : tables) {
-			Calendar startCalObj = null;
-			Calendar endCalObj = Calendar.getInstance();
+			Calendar startCalObj 	= null;
+			Calendar tempEndCalObj 	= Calendar.getInstance();
+			Calendar jobEndCalObj 	= Calendar.getInstance();
 
-			Calendar jobEndCalObj = Calendar.getInstance();
+			if (dateToDelRecords != null && dateToDelRecords.length() > 7) {
+				DateUtil.isThisDateValid(dateToDelRecords);
 
-			if (startDate != null && startDate.length() > 7) {
-				DateUtil.isThisDateValid(startDate);
-
-				startCalObj = DateUtil.convertStringToDate(startDate);
-				endCalObj.setTime(startCalObj.getTime());
-				endCalObj.set(Calendar.HOUR, 0);
-				endCalObj.set(Calendar.MINUTE, timeSpanInMin.intValue());
-				endCalObj.set(Calendar.SECOND, 0);
+				startCalObj = DateUtil.convertStringToDate(dateToDelRecords);
+				tempEndCalObj.setTime(startCalObj.getTime());
+				tempEndCalObj.set(Calendar.HOUR, 0);
+				tempEndCalObj.set(Calendar.MINUTE, timeSpanInMin.intValue());
+				tempEndCalObj.set(Calendar.SECOND, 0);
 
 				jobEndCalObj.setTime(startCalObj.getTime());
 				jobEndCalObj.add(Calendar.HOUR, 24);
 
 			} else {
-				startCalObj = Calendar.getInstance();
-				startCalObj.setTime(sdf.parse(DateUtil
-						.getPreviousDayWithTime(startTime)));
-
-				endCalObj = Calendar.getInstance();
-				endCalObj.setTime(sdf.parse(DateUtil
-						.getPreviousDayWithTime(startTime)));
-				endCalObj.set(Calendar.HOUR, 0);
-				endCalObj.set(Calendar.MINUTE, timeSpanInMin.intValue());
-				endCalObj.set(Calendar.SECOND, 0);
-
-				jobEndCalObj
-						.setTime(sdf.parse(DateUtil.getCurrentDayWithTime()));
+				//delete all expired records expirydate <= todaysdate 
+				startDate = houseKeepingDao.getStartDate(tableName, DateUtil.getCurrentDayWithTime());
+				if(startDate!=null && startDate.trim().length()>0 ){
+					startCalObj = DateUtil.convertStringToCalendar(startDate);				
+					tempEndCalObj.setTime(startCalObj.getTime());
+					tempEndCalObj.add(Calendar.MINUTE, timeSpanInMin.intValue());					
+					jobEndCalObj.setTime(sdf.parse(DateUtil.getCurrentDayWithTime()));
+				}
 			}
 
-			log.info("startTime			:	" + sdf.format(startCalObj.getTime())
-					+ " for table " + tableName);
-			log.info("jobEndCalObj		:	" + sdf.format(jobEndCalObj.getTime()));
-
-			while (endCalObj.compareTo(jobEndCalObj) <= 0) {
-				getTimeFrames(startCalObj, endCalObj, tableName, timeslots);
-				startCalObj.setTime(endCalObj.getTime());
-				endCalObj.add(Calendar.MINUTE, timeSpanInMin.intValue());
+			if(startDate!=null && startDate.trim().length()>0){
+				log.info("startTime			:	" + sdf.format(startCalObj.getTime())
+						+ " for table " + tableName);
+				log.info("tempEndCalObj			:	" + sdf.format(tempEndCalObj.getTime())
+						+ " for table " + tableName);
+				log.info("jobEndCalObj		:	" + sdf.format(jobEndCalObj.getTime()));
+				
+				
+				while (tempEndCalObj.compareTo(jobEndCalObj) <= 0) {
+					getTimeFrames(startCalObj, tempEndCalObj, tableName, timeslots);
+					startCalObj.setTime(tempEndCalObj.getTime());
+					tempEndCalObj.add(Calendar.MINUTE, timeSpanInMin.intValue());
+				}
+				
+				if(tempEndCalObj.compareTo(jobEndCalObj)>0){
+					tempEndCalObj.setTime(jobEndCalObj.getTime()); 
+					startCalObj.setTime(tempEndCalObj.getTime());
+					startCalObj.add(Calendar.MINUTE, -(timeSpanInMin.intValue()));
+					getTimeFrames(startCalObj, tempEndCalObj, tableName, timeslots);
+				}
+				deleteRecords(timeslots, tableName);
+				timeslots = new ArrayList<String>();
+				
+			}else{
+				log.info("There were no expiry recrods in the database for the table "+tableName);
 			}
-			deleteRecords(timeslots, tableName);
-			timeslots = new ArrayList<String>();
 		}
 
 	}
@@ -109,26 +112,20 @@ public class HouseKeepingServiceImpl implements HouseKeepingService{
 				int rowsCount = houseKeepingDao.getCount(tableName,
 						sdf.format(startCalObj.getTime()),
 						sdf.format(endCalObj.getTime()));
-				;
+
 				int minutesDiff = (int) minsBetween(startCalObj, endCalObj);
 
 				// Checking for Threshhold
 				if (rowsCount > thresholdRowsLimit && minutesDiff > 1) {
 					Calendar end = (Calendar) startCalObj.clone();
-					end.add(Calendar.MINUTE, minutesDiff / 2);// This date act
-																// as 1st half
-																// "end date"
-																// and 2nd half
-																// "start date"
+					end.add(Calendar.MINUTE, minutesDiff / 2);
+				// This date act as 1st half "end date" and 2nd half "start date"
 
-					getTimeFrames(startCalObj, end, tableName, timeslots);// Ist
-																			// Half
-																			// Recursive
-																			// call
-																			// start,end
+					getTimeFrames(startCalObj, end, tableName, timeslots);
+				// Ist Half  Recursive call start,end
 
-					getTimeFrames((Calendar) end.clone(), endCalObj, tableName,
-							timeslots);// 2nd Half Recursive call start,end
+					getTimeFrames((Calendar) end.clone(), endCalObj, tableName,timeslots);
+				// 2nd Half Recursive call start,end
 				} else if (rowsCount > 0) {
 					timeslots.add(sdf.format(startCalObj.getTime()) + "#"
 							+ sdf.format(endCalObj.getTime()));
@@ -162,9 +159,9 @@ public class HouseKeepingServiceImpl implements HouseKeepingService{
 				}
 			}
 			long end = System.currentTimeMillis() - starttime;
-			log.info("Total time Taken to delete records from table "
+			log.info("Total time taken to delete records from table "
 					+ tableName + " in ms	:	" + end);
-			System.out.println("Total time Taken to delete records from table "
+			System.out.println("Total time taken to delete records from table "
 					+ tableName + " in ms	:	" + end);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -173,8 +170,8 @@ public class HouseKeepingServiceImpl implements HouseKeepingService{
 	}
 
 	public static long minsBetween(Calendar startDate, Calendar endDate) {
-		long end = endDate.getTimeInMillis();
-		long start = startDate.getTimeInMillis();
+		long end 		= endDate.getTimeInMillis();
+		long start 		= startDate.getTimeInMillis();
 		return TimeUnit.MILLISECONDS.toMinutes(Math.abs(end - start));
 	}
 }

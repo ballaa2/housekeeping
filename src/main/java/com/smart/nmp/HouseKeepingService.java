@@ -6,5 +6,6 @@ import org.springframework.stereotype.Service;
 public interface HouseKeepingService {
 
 	public void deleteExpriedSubscriptionTablesData(String startDate)throws Exception ;
+
 	
 }

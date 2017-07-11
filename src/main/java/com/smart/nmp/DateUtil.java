@@ -62,6 +62,14 @@ public class DateUtil {
 
 	}
 	
+	public static Calendar convertStringToCalendar(String startDate) throws ParseException{
+		Date d = sdtf.parse(startDate);
+	    Calendar c = Calendar.getInstance();
+	    c.setTime(d);
+		return c;
+
+	}
+	
 	
 	public static String getCurrentDayWithTime() throws ParseException{
 		
