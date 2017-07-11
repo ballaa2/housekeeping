@@ -98,7 +98,7 @@ public class HouseKeepingServiceImpl implements HouseKeepingService{
 				timeslots = new ArrayList<String>();
 				
 			}else{
-				log.info("There were no expiry recrods in the database for the table "+tableName);
+				log.info("There were no expiry records in the database for the table "+tableName);
 			}
 		}
 
