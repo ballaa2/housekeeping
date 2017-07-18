@@ -39,5 +39,13 @@ public class HousekeepingDaoImpl implements HousekeepingDao {
 	}
 
 
+	 
+	 public  int deleteOldRecords(String tablename, String thirtyDaysOldDate) {
+		String sql = "DELETE FROM "+tablename+"  WHERE EXPIRYDATE <= '"+thirtyDaysOldDate+"' ";
+		log.debug("sql : "+sql);
+		int deletedRecords = jdbcTemplate.update(sql);
+		return deletedRecords;		
+	}
+
 
 }

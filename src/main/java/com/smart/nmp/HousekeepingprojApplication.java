@@ -1,5 +1,7 @@
 package com.smart.nmp;
 
+import java.text.ParseException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +21,8 @@ public class HousekeepingprojApplication implements CommandLineRunner
    
     @Autowired
     HouseKeepingService houseKeepingService;
-       
-	public  static void main(String[] args) 
+           
+   	public  static void main(String[] args) 
 	{
 		SpringApplication.run(HousekeepingprojApplication.class, args);		 
 	}
@@ -34,15 +36,14 @@ public class HousekeepingprojApplication implements CommandLineRunner
 	}
 	
 	@Scheduled(fixedDelayString="86400000")
-    public void runJob()  
-	{
+    public void runJob() throws Exception  
+	{		
 		 try{
 			 log.info("*************************Job invoked****************************");		
 			 houseKeepingService.deleteExpriedSubscriptionTablesData(dateToDelRecords);
 		 }
 		 catch(Exception e){
-			 log.error("Error while deleting records : "+e.getMessage());
-			 e.printStackTrace();
+			 log.error("Error while deleting records : ",e);
 		 }
     }
 }

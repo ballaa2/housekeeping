@@ -39,13 +39,39 @@ public class DateUtil {
 		return  sdf.format(cal.getTime()).toString(); 
 	}
 	
+	public static String get30daysOldDate()
+	{
+		Calendar cal 		= Calendar.getInstance();
+		cal.add(Calendar.DATE, -30);
+		return  sdf.format(cal.getTime()).toString(); 
+	}
+	
+	public static String get30daysOldDateWithTime()
+	{
+		String oldDate = get30daysOldDate()+" "+"00:00:00";
+		return oldDate;	 
+	}
+	
+	public static String get50daysOldDate()
+	{
+		Calendar cal 		= Calendar.getInstance();
+		cal.add(Calendar.DATE, -50);
+		return  sdf.format(cal.getTime()).toString(); 
+	}
+	
+	public static String get50daysOldDateWithTime()
+	{
+		String oldDate = get50daysOldDate()+" "+"00:00:00";
+		return oldDate;	 
+	}
+	
+	
 	public static String getPreviousDay()
 	{
 		Calendar cal 		= Calendar.getInstance();
 		cal.add(Calendar.DATE, -1);    
 		return  sdf.format(cal.getTime()).toString(); 
 	}
-	
 	
 	public static String getPreviousDayWithTime(String startTime) throws ParseException{
 		

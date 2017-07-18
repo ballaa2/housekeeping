@@ -65,6 +65,11 @@ public class HouseKeepingServiceImpl implements HouseKeepingService{
 
 			} else {
 				//delete all expired records expirydate <= todaysdate 
+				
+				
+				int count = houseKeepingDao.deleteOldRecords(tableName,DateUtil.get30daysOldDateWithTime());
+				log.info("Deleted "+count + " old records less than "+DateUtil.get30daysOldDateWithTime());
+				
 				startDate = houseKeepingDao.getStartDate(tableName, DateUtil.getCurrentDayWithTime());
 				if(startDate!=null && startDate.trim().length()>0 ){
 					startCalObj = DateUtil.convertStringToCalendar(startDate);				
