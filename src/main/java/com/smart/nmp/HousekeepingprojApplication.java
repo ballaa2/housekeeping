@@ -34,15 +34,9 @@ public class HousekeepingprojApplication implements CommandLineRunner
 	}
 	
 	@Scheduled(fixedDelayString="86400000")
-    public void runJob()  
-	{
-		 try{
-			 log.info("*************************Job invoked****************************");		
-			 houseKeepingService.deleteExpriedSubscriptionTablesData(dateToDelRecords);
-		 }
-		 catch(Exception e){
-			 log.error("Error while deleting records : "+e.getMessage());
-			 e.printStackTrace();
-		 }
+    public void runJob()  throws Exception
+	{		
+		log.info("*************************Housekeeping Job invoked****************************");		
+		houseKeepingService.deleteExpriedSubscriptionTablesData(dateToDelRecords);		
     }
 }
