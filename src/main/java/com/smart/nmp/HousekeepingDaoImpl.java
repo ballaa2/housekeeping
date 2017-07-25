@@ -33,7 +33,6 @@ public class HousekeepingDaoImpl implements HousekeepingDao {
 	 @Override
 	 public  int deleteRecords(String tablename, String startDateTime, String endDateTime) {
 		String sql = "DELETE FROM "+tablename+"  WHERE EXPIRYDATE between '"+startDateTime+"' AND '"+endDateTime+"'";
-		log.debug("sql : "+sql);
 		int deletedRecords = jdbcTemplate.update(sql);
 		return deletedRecords;		
 	}

@@ -64,11 +64,9 @@ public class HouseKeepingServiceImpl implements HouseKeepingService{
 				jobEndCalObj.add(Calendar.HOUR, 24);
 
 			} else {
-				//delete all expired records expirydate <= todaysdate 
-				
-				
-				int count = houseKeepingDao.deleteOldRecords(tableName,DateUtil.get30daysOldDateWithTime());
-				log.info("Deleted "+count + " old records less than "+DateUtil.get30daysOldDateWithTime());
+				//delete all expired records expirydate <= todaysdate 			
+				int count = houseKeepingDao.deleteOldRecords(tableName,DateUtil.get10daysOldDateWithTime());
+				log.info("Deleted "+count + " old records less than "+DateUtil.get10daysOldDateWithTime());
 				
 				startDate = houseKeepingDao.getStartDate(tableName, DateUtil.getCurrentDayWithTime());
 				if(startDate!=null && startDate.trim().length()>0 ){
@@ -120,7 +118,7 @@ public class HouseKeepingServiceImpl implements HouseKeepingService{
 
 				int minutesDiff = (int) minsBetween(startCalObj, endCalObj);
 
-				// Checking for Threshhold
+				// Checking for Threshold
 				if (rowsCount > thresholdRowsLimit && minutesDiff > 1) {
 					Calendar end = (Calendar) startCalObj.clone();
 					end.add(Calendar.MINUTE, minutesDiff / 2);
@@ -137,8 +135,7 @@ public class HouseKeepingServiceImpl implements HouseKeepingService{
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			log.error(e.getMessage());
+			log.error("exception occured while generating timeslots",e);
 		}
 
 	}
@@ -150,6 +147,8 @@ public class HouseKeepingServiceImpl implements HouseKeepingService{
 			String ts = "";
 			String tsArray[];
 			long starttime = System.currentTimeMillis();
+			long count = 0;
+			long totalCount = 0;
 			for (int i = 0; i < timeslots.size(); i++) {
 				ts = timeslots.get(i);
 				tsArray = ts.split("#");
@@ -158,19 +157,19 @@ public class HouseKeepingServiceImpl implements HouseKeepingService{
 					log.debug("DELETE FROM " + tableName
 							+ " WHERE EXPIRYDATE between " + tsArray[0]
 							+ " AND " + tsArray[1]);
+					count = houseKeepingDao.deleteRecords(tableName,
+							tsArray[0], tsArray[1]);
+					totalCount = count + totalCount;
 					log.debug("No of Records Deleted :"
 							+ houseKeepingDao.deleteRecords(tableName,
 									tsArray[0], tsArray[1]));
 				}
 			}
 			long end = System.currentTimeMillis() - starttime;
-			log.info("Total time taken to delete records from table "
-					+ tableName + " in ms	:	" + end);
-			System.out.println("Total time taken to delete records from table "
+			log.info("Total time taken to delete "+totalCount+" records from table "
 					+ tableName + " in ms	:	" + end);
 		} catch (Exception e) {
-			e.printStackTrace();
-			log.error(e.getMessage());
+			log.error("exception occured while deleting the records",e);
 		}
 	}
 

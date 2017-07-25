@@ -39,16 +39,16 @@ public class DateUtil {
 		return  sdf.format(cal.getTime()).toString(); 
 	}
 	
-	public static String get30daysOldDate()
+	public static String get10daysOldDate()
 	{
 		Calendar cal 		= Calendar.getInstance();
-		cal.add(Calendar.DATE, -30);
+		cal.add(Calendar.DATE, -10);
 		return  sdf.format(cal.getTime()).toString(); 
 	}
 	
-	public static String get30daysOldDateWithTime()
+	public static String get10daysOldDateWithTime()
 	{
-		String oldDate = get30daysOldDate()+" "+"00:00:00";
+		String oldDate = get10daysOldDate()+" "+"00:00:00";
 		return oldDate;	 
 	}
 	
@@ -114,11 +114,10 @@ public class DateUtil {
 		sdf.setLenient(false);
 
 		try {
-			Date date = sdf.parse(timeToValidate);
+			sdf.parse(timeToValidate);
 
 		} catch (ParseException e) {
-			e.printStackTrace();
-			throw new Exception("Invalid Time Format , Please make sure that you give Time Format as HH:mm:ss");
+			throw new Exception("Invalid Time Format , Please make sure that you give Time Format as HH:mm:ss",e);
 		}
 
 		return true;
@@ -135,10 +134,9 @@ public class DateUtil {
 		sdf.setLenient(false);
 
 		try {
-			Date date = sdf.parse(dateToValidate);
+			sdf.parse(dateToValidate);
 		} catch (ParseException e) {
-			e.printStackTrace();
-			throw new Exception("Invalid Time Format , Please make sure that you give Time Format as yyyy-MM-dd");
+			throw new Exception("Invalid Time Format , Please make sure that you give Time Format as yyyy-MM-dd",e);
 		}
 
 		return true;
