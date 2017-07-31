@@ -23,8 +23,8 @@ public class HousekeepingDaoImpl implements HousekeepingDao {
 	 }
 	 
 	 @Override
-	 public  String getStartDate(String tablename,String todaysDate) {		
-		String sql = "SELECT MIN(EXPIRYDATE) FROM "+tablename+"  WHERE EXPIRYDATE <= '"+todaysDate+"' ";
+	 public  String getStartDate(String tablename,String todaysDate,String oldDate) {		
+		String sql = "SELECT MIN(EXPIRYDATE) FROM "+tablename+"  WHERE EXPIRYDATE <= '"+todaysDate+"' AND >= '"+oldDate+"' ";
 		log.debug("sql : "+sql);
     	String rowcount = jdbcTemplate.queryForObject(sql,String.class);		
 		return rowcount;
@@ -39,8 +39,8 @@ public class HousekeepingDaoImpl implements HousekeepingDao {
 
 
 	 
-	 public  int deleteOldRecords(String tablename, String thirtyDaysOldDate) {
-		String sql = "DELETE FROM "+tablename+"  WHERE EXPIRYDATE <= '"+thirtyDaysOldDate+"' ";
+	 public  int deleteOldRecords(String tablename, String oldDate) {
+		String sql = "DELETE FROM "+tablename+"  WHERE EXPIRYDATE <= '"+oldDate+"' ";
 		log.debug("sql : "+sql);
 		int deletedRecords = jdbcTemplate.update(sql);
 		return deletedRecords;		

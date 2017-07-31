@@ -68,7 +68,7 @@ public class HouseKeepingServiceImpl implements HouseKeepingService{
 				int count = houseKeepingDao.deleteOldRecords(tableName,DateUtil.get10daysOldDateWithTime());
 				log.info("Deleted "+count + " old records less than "+DateUtil.get10daysOldDateWithTime());
 				
-				startDate = houseKeepingDao.getStartDate(tableName, DateUtil.getCurrentDayWithTime());
+				startDate = houseKeepingDao.getStartDate(tableName, DateUtil.getCurrentDayWithTime(),DateUtil.get10daysOldDateWithTime());
 				if(startDate!=null && startDate.trim().length()>0 ){
 					startCalObj = DateUtil.convertStringToCalendar(startDate);				
 					tempEndCalObj.setTime(startCalObj.getTime());
